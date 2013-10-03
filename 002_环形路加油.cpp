@@ -12,31 +12,37 @@
  如果存在满足条件的加油站，返回该加油站的序号(0-based)。否则返回-1。
  提示：n可能达到106，O(n^2)的枚举算法会超出时间限制。
 
- Solution: 1. 开辟一个长度为N的数组v，记录a[i]-g[i]。
+ Solution: 
+           1. 从左往右遍历，记住油量和最少的位置，从其下一个位置出发。
+           2. 开辟一个长度为N的数组v，记录a[i]-g[i]。
               从后往前遍历数组v。
               如果v[i]小于零，将其与v[i-1]合并，因为此时i不可能作为起点。
               如果v[i]不小于零，记入sum，并记录该位置pos（有可能作为起点）。
               最后，如果v[0]大于等于零，说明整个路段已经没有负的v[i]。返回0即可。
               如果v[0]+sum>=0，有满足条件的加油站，返回pos。
               否则，返回-1。
-           2. 开辟一个长度为2*N-1的数组v，记录a[i]-g[i]（环转化为线性）。
+           3. 开辟一个长度为2*N-1的数组v，记录a[i]-g[i]（环转化为线性）。
               使用两个指针start和end。
               如果[start, end]区间和小于0，令start = end + 1并继续。
               直至找到长度为N的区间[start, end]，并且区间和大于等于0。找到返回start。
-           以上两种方案的时间复杂度皆为O(N)，第一个方法较节省空间。
+           以上三种方案的时间复杂度皆为O(N)。
 */
 
-#include <vector>
-using namespace std;
-
-int selectGasStation_1(const vector<int> &a, const vector<int> &g);
-int selectGasStation_2(const vector<int> &a, const vector<int> &g);
-
-int selectGasStation(const vector<int> &a, const vector<int> &g) {
-    return selectGasStation_1(a, g);
+int selectGasStation_1(const vector<int> &a, const vector<int> &g) {
+    int N = a.size();
+    int res = 0, min = a[0] - g[0], sum = min;
+    for (int i = 1; i < N; ++i)
+    {
+        sum += a[i] - g[i];
+        if (sum < min) {
+            min = sum;
+            res = i;
+        }
+    }
+    return sum >= 0 ? (res + 1) % N : -1;
 }
 
-int selectGasStation_1(const vector<int> &a, const vector<int> &g) {
+int selectGasStation_2(const vector<int> &a, const vector<int> &g) {
     int N = a.size();
     int v[N];
     for (int i = 0; i < a.size(); ++i)
@@ -56,7 +62,7 @@ int selectGasStation_1(const vector<int> &a, const vector<int> &g) {
     else return -1;
 }
 
-int selectGasStation_2(const vector<int> &a, const vector<int> &g) {
+int selectGasStation_3(const vector<int> &a, const vector<int> &g) {
     int N = a.size();
     int v[2 * N];
     for (int i = 0; i < N; ++i)
